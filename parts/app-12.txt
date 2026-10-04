@@ -1,0 +1,142 @@
+t=y.toFixed(3);
+    $('sig-point').setAttribute('cx',sx(z)); $('sig-point').setAttribute('cy',sy(y));
+    $('sig-note').textContent = z>2 ? 'The weighted sum is strongly positive, so the sigmoid output is close to 1.'
+      : z<-2 ? 'The weighted sum is strongly negative, so the sigmoid output is close to 0.'
+      : Math.abs(z)<.05 ? 'At z = 0, the sigmoid output is exactly 0.5.'
+      : 'In the middle region, the sigmoid changes most noticeably as z changes.';
+  }
+  $('sig-z').addEventListener('input',renderSig);
+
+  function renderSim(){
+    const x1=1,x2=2,w1=+$('sim-w1').value,w2=+$('sim-w2').value,b=+$('sim-b').value;
+    const c1=w1*x1,c2=w2*x2,z=c1+c2+b,y=sig(z);
+    $('sim-w1-v').textContent=w1.toFixed(1);$('sim-w2-v').textContent=w2.toFixed(1);$('sim-b-v').textContent=b.toFixed(1);
+    $('sim-c1').textContent=c1.toFixed(2);$('sim-c2').textContent=c2.toFixed(2);$('sim-z').textContent=z.toFixed(2);$('sim-y').textContent=y.toFixed(3);
+    $('svg-x1').textContent=x1.toFixed(1);$('svg-x2').textContent=x2.toFixed(1);$('svg-z').textContent='z = '+z.toFixed(2);$('svg-y').textContent='y = '+y.toFixed(3);$('svg-z').setAttribute('class','math-svg-var');$('svg-y').setAttribute('class','math-svg-var');$('svg-w1').setAttribute('class','math-svg-var');$('svg-w2').setAttribute('class','math-svg-var');
+    $('svg-w1').textContent='w₁ = '+w1.toFixed(1);$('svg-w2').textContent='w₂ = '+w2.toFixed(1);
+    $('sim-explain').innerHTML=`The input is fixed at <span class="math-label">x₁ = 1</span> and <span class="math-label">x₂ = 2</span>. The trainable parameters produce contributions <span class="math-number">${c1.toFixed(2)}</span> and <span class="math-number">${c2.toFixed(2)}</span>. Adding the bias gives <span class="math-label">z = ${z.toFixed(2)}</span>, and the sigmoid maps this to <span class="math-label">y = ${y.toFixed(3)}</span>.`;
+  }
+  ['sim-w1','sim-w2','sim-b'].forEach(id=>$(id).addEventListener('input',renderSim));
+  $('sim-reset').addEventListener('click',()=>{$('sim-w1').value=.8;$('sim-w2').value=-.4;$('sim-b').value=0;renderSim()});
+  $('sim-random').addEventListener('click',()=>{['sim-w1','sim-w2','sim-b'].forEach(id=>$(id).value=(Math.random()*4-2).toFixed(1));renderSim()});
+
+  function vals(w1,w2,b,x1,x2,t){const z=w1*x1+w2*x2+b,y=sig(z),L=(y-t)**2,dLdy=2*(y-t),dydz=y*(1-y),delta=dLdy*dydz;return{z,y,L,dLdy,dydz,delta,g1:delta*x1,g2:delta*x2,gb:delta}}
+  function renderBP(){
+    const x1=+$('bp-x1').value,x2=+$('bp-x2').value,w1=+$('bp-w1').value,w2=+$('bp-w2').value,b=+$('bp-b').value,t=+$('bp-t').value,h=+$('bp-h').value,s=vals(w1,w2,b,x1,x2,t);
+    $('bp-x1-v').textContent=x1.toFixed(1);$('bp-x2-v').textContent=x2.toFixed(1);$('bp-w1-v').textContent=w1.toFixed(1);$('bp-w2-v').textContent=w2.toFixed(1);$('bp-b-v').textContent=b.toFixed(1);$('bp-t-v').textContent=t.toFixed(1);$('bp-h-v').textContent=h.toFixed(3);
+    $('bp-z').textContent=s.z.toFixed(4);$('bp-y').textContent=s.y.toFixed(4);$('bp-L').textContent=s.L.toFixed(5);$('bp-dLdy').textContent=s.dLdy.toFixed(4);$('bp-dydz').textContent=s.dydz.toFixed(4);$('bp-delta').textContent=s.delta.toFixed(4);$('bp-g1').textContent=s.g1.toFixed(4);$('bp-g2').textContent=s.g2.toFixed(4);$('bp-gb').textContent=s.gb.toFixed(4);
+    const fd=(vals(w1+h,w2,b,x1,x2,t).L-s.L)/h;$('bp-exact').textContent=s.g1.toFixed(6);$('bp-fd').textContent=fd.toFixed(6);$('bp-error').textContent=Math.abs(fd-s.g1).toExponential(2);
+  }
+  ['bp-x1','bp-x2','bp-w1','bp-w2','bp-b','bp-t','bp-h'].forEach(id=>$(id).addEventListener('input',renderBP));
+
+  let gd={w1:1,w2:.5,b:0}, gdHistory=[];
+  function recordGD(alphaUsed=null){
+    const s=vals(gd.w1,gd.w2,gd.b,1,2,.5);
+    gdHistory.push({step:gdHistory.length, loss:s.L, pred:s.y, w1:gd.w1, w2:gd.w2, b:gd.b, alpha:alphaUsed});
+    return s;
+  }
+  function renderGDPlot(){
+    const W=640,H=360,pad=48, grid=$('gd-grid'), axes=$('gd-axes'), points=$('gd-points');
+    grid.innerHTML=''; axes.innerHTML=''; points.innerHTML='';
+    const n=gdHistory.length;
+    const maxStep=Math.max(1,n-1);
+    const maxLoss=Math.max(...gdHistory.map(d=>d.loss), 0.001);
+    const sx=step=>pad+(step/maxStep)*(W-2*pad);
+    const sy=loss=>H-pad-(loss/maxLoss)*(H-2*pad);
+
+    for(let i=0;i<=4;i++){
+      const y=pad+i*(H-2*pad)/4;
+      const lossVal=(maxLoss*(1-i/4)).toFixed(3);
+      const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',pad); line.setAttribute('y1',y);
+      line.setAttribute('x2',W-pad); line.setAttribute('y2',y);
+      line.setAttribute('stroke','var(--border)'); line.setAttribute('stroke-width','1');
+      grid.appendChild(line);
+      const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',pad-8); txt.setAttribute('y',y+4);
+      txt.setAttribute('text-anchor','end'); txt.setAttribute('fill','var(--muted)');
+      txt.setAttribute('font-size','12'); txt.setAttribute('font-family','STIX Two Math, Cambria Math, Times New Roman, serif'); txt.textContent=lossVal;
+      axes.appendChild(txt);
+    }
+    for(let i=0;i<=maxStep;i++){
+      const x=sx(i);
+      const line=document.createElementNS('http://www.w3.org/2000/svg','line');
+      line.setAttribute('x1',x); line.setAttribute('y1',pad);
+      line.setAttribute('x2',x); line.setAttribute('y2',H-pad);
+      line.setAttribute('stroke','var(--border)'); line.setAttribute('stroke-width','1');
+      grid.appendChild(line);
+      const txt=document.createElementNS('http://www.w3.org/2000/svg','text');
+      txt.setAttribute('x',x); txt.setAttribute('y',H-pad+18);
+      txt.setAttribute('text-anchor','middle'); txt.setAttribute('fill','var(--muted)');
+      txt.setAttribute('font-size','12'); txt.setAttribute('font-family','STIX Two Math, Cambria Math, Times New Roman, serif'); txt.textContent=i;
+      axes.appendChild(txt);
+    }
+    const xAxis=document.createElementNS('http://www.w3.org/2000/svg','line');
+    xAxis.setAttribute('x1',pad); xAxis.setAttribute('y1',H-pad);
+    xAxis.setAttribute('x2',W-pad); xAxis.setAttribute('y2',H-pad);
+    xAxis.setAttribute('stroke','var(--text)'); xAxis.setAttribute('stroke-width','1.5');
+    axes.appendChild(xAxis);
+    const yAxis=document.createElementNS('http://www.w3.org/2000/svg','line');
+    yAxis.setAttribute('x1',pad); yAxis.setAttribute('y1',pad);
+    yAxis.setAttribute('x2',pad); yAxis.setAttribute('y2',H-pad);
+    yAxis.setAttribute('stroke','var(--text)'); yAxis.setAttribute('stroke-width','1.5');
+    axes.appendChild(yAxis);
+    const xlabel=document.createElementNS('http://www.w3.org/2000/svg','text');
+    xlabel.setAttribute('x',W/2); xlabel.setAttribute('y',H-8);
+    xlabel.setAttribute('text-anchor','middle'); xlabel.setAttribute('fill','var(--text)');
+    xlabel.setAttribute('font-size','13'); xlabel.textContent='update step';
+    axes.appendChild(xlabel);
+    const ylabel=document.createElementNS('http://www.w3.org/2000/svg','text');
+    ylabel.setAttribute('x',18); ylabel.setAttribute('y',H/2);
+    ylabel.setAttribute('text-anchor','middle'); ylabel.setAttribute('fill','var(--text)');
+    ylabel.setAttribute('font-size','13'); ylabel.setAttribute('transform',`rotate(-90 18 ${H/2})`);
+    ylabel.textContent='loss';
+    axes.appendChild(ylabel);
+
+    let d='';
+    gdHistory.forEach((pt,i)=>{ d+=(i?'L':'M')+sx(pt.step)+' '+sy(pt.loss)+' '; });
+    $('gd-line').setAttribute('d', d);
+
+    gdHistory.forEach((pt,i)=>{
+      const c=document.createElementNS('http://www.w3.org/2000/svg','circle');
+      c.setAttribute('cx',sx(pt.step)); c.setAttribute('cy',sy(pt.loss));
+      c.setAttribute('r', i===gdHistory.length-1 ? '5.5' : '4');
+      c.setAttribute('fill', i===gdHistory.length-1 ? 'var(--s3)' : 'var(--accent)');
+      c.setAttribute('stroke','var(--text)'); c.setAttribute('stroke-width','1');
+      points.appendChild(c);
+    });
+
+    const tbody=$('gd-history-body');
+    tbody.innerHTML='';
+    gdHistory.forEach(pt=>{
+      const tr=document.createElement('tr');
+      const alphaText=pt.step===0 ? '—' : pt.alpha.toFixed(2);
+      tr.innerHTML=`<td>${pt.step}</td><td>${alphaText}</td><td>${pt.pred.toFixed(4)}</td><td>${pt.loss.toFixed(5)}</td>`;
+      tbody.appendChild(tr);
+    });
+
+    const latest=gdHistory[gdHistory.length-1];
+    $('gd-note').textContent = gdHistory.length===1
+      ? 'This first point is the starting loss before any updates.'
+      : `Update ${latest.step} used α=${latest.alpha.toFixed(2)}. The current loss is ${latest.loss.toFixed(5)} and the prediction is ${latest.pred.toFixed(4)}. Compare the newest point with the previous one.`;
+  }
+  function renderGD(){
+    const s=vals(gd.w1,gd.w2,gd.b,1,2,.5);
+    $('gd-w1').textContent=gd.w1.toFixed(4);$('gd-w2').textContent=gd.w2.toFixed(4);$('gd-y').textContent=s.y.toFixed(4);$('gd-L').textContent=s.L.toFixed(5);
+    renderGDPlot();
+  }
+  $('gd-a').addEventListener('input',()=>{$('gd-a-v').textContent=(+$('gd-a').value).toFixed(2)});
+  $('gd-step').addEventListener('click',()=>{
+    const a=+$('gd-a').value,s=vals(gd.w1,gd.w2,gd.b,1,2,.5);
+    gd.w1-=a*s.g1; gd.w2-=a*s.g2; gd.b-=a*s.gb;
+    recordGD(a); renderGD();
+  });
+  $('gd-reset').addEventListener('click',()=>{
+    gd={w1:1,w2:.5,b:0}; gdHistory=[]; recordGD(); renderGD();
+  });
+
+  renderSig(); renderSim(); renderBP(); gdHistory=[]; recordGD(); renderGD();
+})();
+</script>
+</body>
+</html>
