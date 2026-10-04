@@ -1,0 +1,139 @@
+/div><div style="margin-top:6px"><strong>\(L=0.81\)</strong></div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="h3">Why the loss function matters</div>
+      <p class="small">The network's goal during training is to make the loss smaller. So the real question is not just “how does the output change?” but</p>
+      <div class="card center"><strong>How does the loss change when a weight changes?</strong></div>
+      <p class="small">That is why we want derivatives such as \(\frac{\partial L}{\partial w_1}\), \(\frac{\partial L}{\partial w_2}\), and \(\frac{\partial L}{\partial b}\).</p>
+    </div>
+
+    <div class="card">
+      <div class="h2">The chain rule is the engine of backpropagation</div>
+      <p>Suppose one training example has inputs <span class="mono">\(x_1\),\(x_2\)</span> and desired output \(t\). The neuron makes a prediction, we compute the loss, and then we ask how each parameter contributed to that loss.</p>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">Step 1 · Forward pass</div>
+      <div class="card center math-cell">\[w_1,w_2,b \longrightarrow z=w_1x_1+w_2x_2+b \longrightarrow y=\sigma(z) \longrightarrow L=(y-t)^2\]</div>
+      <p class="small">The forward pass gives us both the prediction and the loss before we calculate any derivatives.</p>
+    </div>
+    <div class="card">
+      <div class="h3">Step 2 · Backward pass: trace the loss back to the parameters</div>
+      <p class="small">The forward pass tells us what the network predicted and how large the loss is. But the forward pass alone does <strong>not</strong> tell us how to improve the network.</p>
+      <p class="small">To learn, we need to answer a different question:</p>
+      <div class="card center"><strong>If we change a weight a little, how will the final loss change?</strong></div>
+
+      <p class="small">The difficulty is that a weight does not affect the loss directly. For example, \(w_1\) first changes the weighted sum \(z\). Then \(z\) changes the neuron output \(y\). Finally, \(y\) changes the loss \(L\).</p>
+
+      <div class="card center math-cell">\[w_1 \longrightarrow z \longrightarrow y \longrightarrow L\]</div>
+
+      <p class="small">So when we say <strong>“move backward”</strong>, we do not mean that the numerical values literally travel backward through the network. We mean that we start at the final quantity we care about—the loss—and trace its dependence backward through the computation.</p>
+
+      <div class="grid cards4 small center">
+        <div class="card"><div class="muted">Start here</div><div class="mono">L</div><div>How does the loss respond?</div></div>
+        <div class="card"><div class="muted">Look one step earlier</div><div class="mono">y</div><div>How does \(y\) affect \(L\)?</div></div>
+        <div class="card"><div class="muted">Then earlier</div><div class="mono">z</div><div>How does \(z\) affect \(y\)?</div></div>
+        <div class="card"><div class="muted">Finally</div><div>\(w_1\)</div><div>How does \(w_1\) affect z?</div></div>
+      </div>
+
+      <p class="small">The chain rule combines those local effects:</p>
+      <div class="card center math-cell">\[\frac{\partial L}{\partial w_1}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial z}\frac{\partial z}{\partial w_1}\]</div>
+
+      <p class="small">Each factor answers one small question:</p>
+      <div class="grid cards3 small">
+        <div class="card"><div>\(\frac{\partial L}{\partial y}\)</div><div class="muted">If the prediction changes a little, how does the loss change?</div></div>
+        <div class="card"><div>\(\frac{\partial y}{\partial z}\)</div><div class="muted">If the weighted sum changes a little, how does the neuron output change?</div></div>
+        <div class="card"><div>\(\frac{\partial z}{\partial w_1}\)</div><div class="muted">If the weight changes a little, how does the weighted sum change?</div></div>
+      </div>
+
+      <p class="small">Multiplying these sensitivities tells us the total effect of changing \(w_1\) on the final loss.</p>
+
+      <div class="card panel">
+        <div class="h3">Why do we need to go backward?</div>
+        <p class="small">Because the network learns by changing its parameters. To decide whether a parameter should increase or decrease, we need the derivative of the <strong>loss</strong> with respect to that parameter.</p>
+        <p class="small">Going backward is therefore a bookkeeping strategy: start from the loss, use the chain rule through each intermediate quantity, and eventually reach every trainable weight and bias.</p>
+      </div>
+
+      <div class="card panel">
+        <div class="h3">Forward pass vs. backward pass</div>
+        <div class="grid cards2 small">
+          <div class="card">
+            <strong>Forward pass</strong>
+            <p>Use the current parameters to compute intermediate values, the prediction, and the loss.</p>
+            <div class="mono center">inputs → z → y → L</div>
+          </div>
+          <div class="card">
+            <strong>Backward pass</strong>
+            <p>Start from the loss and compute how sensitive it is to earlier quantities and parameters.</p>
+            <div class="mono center">L → y → z → weights</div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="card panel">
+      <div class="h3">Step 2 · Backward pass overview</div>
+      <p class="small">The backward pass has two natural parts:</p>
+      <div class="grid cards2 small">
+        <div class="card">
+          <strong>Step 2A: Local derivatives</strong>
+          <p>Differentiate each small function in the computation separately.</p>
+        </div>
+        <div class="card">
+          <strong>Step 2B: Chain them together</strong>
+          <p>Multiply the local derivatives along the dependency path to obtain gradients with respect to the parameters.</p>
+        </div>
+      </div>
+      <p class="small">This organization mirrors how backpropagation actually works: first understand the derivative at each local operation, then propagate the effect backward through the chain.</p>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">Step 2A · Compute the local derivatives</div>
+      <p class="small">Now we compute the small derivative pieces that will be multiplied together in the backward pass. For each piece, first identify the function, then identify the variable we are differentiating with respect to.</p>
+
+      <div class="card">
+        <div class="h3">2A.1 · Differentiate the loss with respect to the prediction</div>
+        <p class="small">The loss function is</p>
+        <div class="card center math-cell">\[L(y)=(y-t)^2\]</div>
+        <p class="small">Here, the target \(t\) is treated as a constant. The variable is \(y\).</p>
+        <p class="small">Using the power rule together with the chain rule for the inner function \(y-t\),</p>
+        <div class="card center math-cell">\[\frac{\partial L}{\partial y}=2(y-t)\]</div>
+        <p class="small"><strong>Interpretation:</strong> this derivative tells us how sensitive the loss is to a small change in the prediction.</p>
+        <div class="card panel small">
+          If \(y<t\), then \(\frac{\partial L}{\partial y}<0\). Increasing the prediction would locally reduce the loss.<br>
+          If \(y>t\), then \(\frac{\partial L}{\partial y}>0\). Decreasing the prediction would locally reduce the loss.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="h3">2A.2 · Differentiate the sigmoid output with respect to z</div>
+        <p class="small">The neuron output is</p>
+        <div class="card center math-cell">\[y=\sigma(z)=\frac{1}{1+e^{-z}}\]</div>
+        <p class="small">Now the variable is \(z\). Differentiating the sigmoid gives</p>
+        <div class="card center math-cell">\[\frac{\partial y}{\partial z}=\sigma(z)(1-\sigma(z))\]</div>
+        <p class="small">Since \(y=\sigma(z)\), we can write the same derivative more conveniently as</p>
+        <div class="card center math-cell">\[\frac{\partial y}{\partial z}=y(1-y)\]</div>
+        <p class="small"><strong>Interpretation:</strong> this derivative measures how sensitive the neuron's output is to a small change in the weighted sum \(z\).</p>
+        <div class="card panel small">
+          Notice that when the sigmoid output is near 0 or near 1, the factor \(y(1-y)\) is small. Around <span class="mono">y=0.5</span>, it is larger.
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="h3">2A.3 · Differentiate the weighted sum with respect to each parameter</div>
+        <p class="small">Recall the weighted sum:</p>
+        <div class="card center math-cell">\[z=w_1x_1+w_2x_2+b\]</div>
+        <p class="small">In this lesson, the inputs \(x_1\) and \(x_2\) are fixed data. The trainable quantities are \(w_1\), \(w_2\), and \(b\).</p>
+        <p class="small">Differentiate \(z\) with respect to one parameter at a time:</p>
+        <div class="grid cards3 small center mono">
+          <div class="card">
+            \(z=w_1x_1+w_2x_2+b\)<br><br>
+            \(\frac{\partial z}{\partial w_1}=x_1\)
+          </div>
+          <div class="card">
+            \(z=w_1x_1+w_2x_2+b\)<br><br>
+            \(\frac{\partial z}{\partial w_2}=x_2\)
+          </div>
+          <div class="card">
+            \(z=w_1x_1+w_2
