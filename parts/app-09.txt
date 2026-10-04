@@ -1,0 +1,135 @@
+t>
+              <text x="83" y="90" text-anchor="middle" fill="var(--text)" font-size="15" font-family="Times New Roman, serif" font-style="italic">r<tspan baseline-shift="sub" font-size="10">5</tspan></text>
+              <text x="139" y="90" text-anchor="middle" fill="var(--text)" font-size="15" font-family="Times New Roman, serif" font-style="italic">r<tspan baseline-shift="sub" font-size="10">6</tspan></text>
+              <text x="27" y="146" text-anchor="middle" fill="var(--text)" font-size="15" font-family="Times New Roman, serif" font-style="italic">r<tspan baseline-shift="sub" font-size="10">7</tspan></text>
+              <text x="83" y="146" text-anchor="middle" fill="var(--text)" font-size="15" font-family="Times New Roman, serif" font-style="italic">r<tspan baseline-shift="sub" font-size="10">8</tspan></text>
+              <text x="139" y="146" text-anchor="middle" fill="var(--text)" font-size="15" font-family="Times New Roman, serif" font-style="italic">r<tspan baseline-shift="sub" font-size="10">9</tspan></text>
+            </g>
+            <text x="135" y="218" text-anchor="middle" fill="var(--muted)" font-size="13">one entry for each filter position</text>
+          </g>
+        </svg>
+      </div>
+
+      <p class="small">So a feature map is simply a <strong>map of responses</strong>: it tells us where the chosen filter pattern appears strongly or weakly in the image.</p>
+
+      <div class="grid cards2 small">
+        <div class="card">
+          <strong>Large response</strong>
+          <p>The local image patch matches the pattern emphasized by the filter fairly well.</p>
+        </div>
+        <div class="card">
+          <strong>Small response</strong>
+          <p>The local patch does not strongly match that pattern.</p>
+        </div>
+      </div>
+
+      <div class="card panel small">
+        <strong>Important:</strong> the feature map is not another copy of the original image. Its entries are the filter responses produced from local patches of the original image.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="h3">Step 4 · Different filters can learn to respond to different patterns</div>
+      <p class="small">A CNN usually uses many filters, not just one. Each filter has its own weights, so different filters can become sensitive to different local patterns in the image.</p>
+
+      <div class="card panel small">
+        <strong>Think of each filter as asking a different question about a small image patch.</strong><br>
+        One filter might respond strongly to a vertical boundary, another to a horizontal boundary, and another to a slanted stroke.
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="h3">Picture: one patch compared with three different filters</div>
+        <p class="small">The image patch on the left contains a <strong>vertical boundary</strong>. We compare that same patch with three filters. The response bar is larger when the filter pattern matches the patch better.</p>
+        <svg viewBox="0 0 1080 420" style="width:100%" aria-label="One patch compared against three filters with response bars">
+          <!-- left patch -->
+          <g transform="translate(25,95)">
+            <text x="110" y="-18" text-anchor="middle" fill="var(--text)" font-size="16">image patch</text>
+            <rect width="220" height="220" rx="14" fill="#f3f4f6" stroke="var(--border)" stroke-width="2"/>
+            <rect x="110" y="0" width="110" height="220" fill="#374151"/>
+            <text x="110" y="248" text-anchor="middle" fill="var(--muted)" font-size="14">vertical change from light to dark</text>
+          </g>
+
+          <!-- equals / compare -->
+
+
+          <!-- row 1 -->
+          <g transform="translate(360,25)">
+            <rect width="690" height="100" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="58" y="22" text-anchor="middle" fill="var(--text)" font-size="14">filter A</text>
+            <text x="58" y="44" text-anchor="middle" fill="var(--muted)" font-size="12">looks for vertical</text>
+            <text x="58" y="59" text-anchor="middle" fill="var(--muted)" font-size="12">change</text>
+            <g transform="translate(120,18)">
+              <rect x="0" y="0" width="84" height="84" fill="#fff" stroke="var(--border)"/>
+              <path d="M28 0V84M56 0V84M0 28H84M0 56H84" stroke="var(--border)"/>
+              <text x="9" y="18" font-size="12">−1</text><text x="42" y="18" font-size="12">0</text><text x="71" y="18" font-size="12">1</text>
+              <text x="9" y="46" font-size="12">−1</text><text x="42" y="46" font-size="12">0</text><text x="71" y="46" font-size="12">1</text>
+              <text x="9" y="74" font-size="12">−1</text><text x="42" y="74" font-size="12">0</text><text x="71" y="74" font-size="12">1</text>
+            </g>
+            <text x="260" y="54" fill="var(--muted)" font-size="24">→</text>
+            <text x="315" y="54" fill="var(--text)" font-size="16">response</text>
+            <rect x="395" y="37" width="220" height="24" rx="12" fill="#e5e7eb" stroke="var(--border)"/>
+            <rect x="395" y="37" width="205" height="24" rx="12" fill="#10b981"/>
+            <text x="640" y="54" fill="var(--text)" font-size="15">strong</text>
+          </g>
+
+          <!-- row 2 -->
+          <g transform="translate(360,150)">
+            <rect width="690" height="100" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="58" y="22" text-anchor="middle" fill="var(--text)" font-size="14">filter B</text>
+            <text x="58" y="44" text-anchor="middle" fill="var(--muted)" font-size="12">looks for horizontal</text>
+            <text x="58" y="59" text-anchor="middle" fill="var(--muted)" font-size="12">change</text>
+            <g transform="translate(120,18)">
+              <rect x="0" y="0" width="84" height="84" fill="#fff" stroke="var(--border)"/>
+              <path d="M28 0V84M56 0V84M0 28H84M0 56H84" stroke="var(--border)"/>
+              <text x="9" y="18" font-size="12">−1</text><text x="37" y="18" font-size="12">−1</text><text x="65" y="18" font-size="12">−1</text>
+              <text x="17" y="46" font-size="12">0</text><text x="45" y="46" font-size="12">0</text><text x="73" y="46" font-size="12">0</text>
+              <text x="17" y="74" font-size="12">1</text><text x="45" y="74" font-size="12">1</text><text x="73" y="74" font-size="12">1</text>
+            </g>
+            <text x="260" y="54" fill="var(--muted)" font-size="24">→</text>
+            <text x="315" y="54" fill="var(--text)" font-size="16">response</text>
+            <rect x="395" y="37" width="220" height="24" rx="12" fill="#e5e7eb" stroke="var(--border)"/>
+            <rect x="395" y="37" width="58" height="24" rx="12" fill="#9ca3af"/>
+            <text x="640" y="54" fill="var(--text)" font-size="15">small</text>
+          </g>
+
+          <!-- row 3 -->
+          <g transform="translate(360,275)">
+            <rect width="690" height="100" rx="14" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="58" y="22" text-anchor="middle" fill="var(--text)" font-size="14">filter C</text>
+            <text x="58" y="44" text-anchor="middle" fill="var(--muted)" font-size="12">looks for a slanted</text>
+            <text x="58" y="59" text-anchor="middle" fill="var(--muted)" font-size="12">pattern</text>
+            <g transform="translate(120,18)">
+              <rect x="0" y="0" width="84" height="84" fill="#fff" stroke="var(--border)"/>
+              <path d="M28 0V84M56 0V84M0 28H84M0 56H84" stroke="var(--border)"/>
+              <text x="17" y="18" font-size="12">1</text><text x="45" y="18" font-size="12">0</text><text x="69" y="18" font-size="12">−1</text>
+              <text x="17" y="46" font-size="12">0</text><text x="45" y="46" font-size="12">1</text><text x="73" y="46" font-size="12">0</text>
+              <text x="9" y="74" font-size="12">−1</text><text x="45" y="74" font-size="12">0</text><text x="73" y="74" font-size="12">1</text>
+            </g>
+            <text x="260" y="54" fill="var(--muted)" font-size="24">→</text>
+            <text x="315" y="54" fill="var(--text)" font-size="16">response</text>
+            <rect x="395" y="37" width="220" height="24" rx="12" fill="#e5e7eb" stroke="var(--border)"/>
+            <rect x="395" y="37" width="76" height="24" rx="12" fill="#9ca3af"/>
+            <text x="640" y="54" fill="var(--text)" font-size="15">small</text>
+          </g>
+        </svg>
+      </div>
+
+      <p class="small">For this particular image patch, the filter whose weights are aligned with the vertical boundary gives a stronger response. A different patch might activate a different filter more strongly.</p>
+
+      <div class="grid cards3 small">
+        <div class="card">
+          <strong>Filter A</strong>
+          <p>May respond strongly to one orientation of intensity change.</p>
+        </div>
+        <div class="card">
+          <strong>Filter B</strong>
+          <p>May respond strongly to a different orientation.</p>
+        </div>
+        <div class="card">
+          <strong>Filter C</strong>
+          <p>May respond to a slanted or more complex local pattern.</p>
+        </div>
+      </div>
+
+      <div class="card panel small">
+        <strong>Important:</st
