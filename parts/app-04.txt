@@ -1,0 +1,130 @@
+x_2+b\)<br><br>
+            \(\frac{\partial z}{\partial b}=1\)
+          </div>
+        </div>
+        <p class="small"><strong>Interpretation:</strong> changing \(w_1\) changes \(z\) in proportion to \(x_1\); changing \(w_2\) changes \(z\) in proportion to \(x_2\); changing the bias shifts \(z\) directly.</p>
+      </div>
+
+      <div class="card">
+        <div class="h3">Pause and try these derivatives yourself</div>
+        <ol class="small">
+          <li>Starting from <span class="mono">\(L=(y-t)^2\)</span>, differentiate with respect to \(y\) before revealing the formula above.</li>
+          <li>Starting from <span class="mono">z=\(w_1\)\(x_1\)+\(w_2\)\(x_2\)+b</span>, differentiate with respect to \(w_1\). Which terms are constants?</li>
+          <li>Do the same for \(w_2\) and \(b\).</li>
+          <li>For the sigmoid, use \(y=\sigma(z)\) and verify that \(\sigma^\prime(z)=\sigma(z)(1-\sigma(z))\).</li>
+        </ol>
+      </div>
+
+      <div class="card">
+        <div class="h3">Collect the local derivatives</div>
+        <p class="small">These are the pieces needed for backpropagation:</p>
+        <div class="grid cards3 small">
+          <div class="card"><div class="muted">Loss layer</div><div>\(L=(y-t)^2\)</div><div>\(\frac{\partial L}{\partial y}=2(y-t)\)</div></div>
+          <div class="card"><div class="muted">Activation layer</div><div class="mono">y=\(\sigma(z)\)</div><div>\(\frac{\partial y}{\partial z}=y(1-y)\)</div></div>
+          <div class="card"><div class="muted">Weighted-sum layer</div><div class="mono">z=\(w_1\)\(x_1\)+\(w_2\)\(x_2\)+b</div><div class="mono">\(\frac{\partial z}{\partial w_1}=x_1\)<br>\(\frac{\partial z}{\partial w_2}=x_2\)<br>\(\frac{\partial z}{\partial b}=1\)</div></div>
+        </div>
+      </div>
+
+      <details class="card">
+        <summary>Step 2A checkpoint</summary>
+        <div class="small">
+          <p>1. In <span class="mono">\(L=(y-t)^2\)</span>, which quantity is treated as a constant when differentiating with respect to \(y\)?</p>
+          <p>2. Why can we rewrite \(\sigma^\prime(z)\) as \(y(1-y)\)?</p>
+          <p>3. Why is <span class="mono">\(\frac{\partial z}{\partial w_1}=x_1\)</span>?</p>
+          <p>4. Which of the three local derivatives tells us how the loss responds to the prediction? Which tells us how the activation responds to its input?</p>
+        </div>
+      </details>
+    </div>
+    <div class="card">
+      <div class="h3">Step 2B · Combine the local derivatives with the chain rule</div>
+      <p class="small">Now use the local derivatives from Step 2A to propagate the effect of the loss backward.</p>
+      <p class="small">First combine the loss derivative and the activation derivative:</p>
+      <div class="card center math-cell">\[\delta=\frac{\partial L}{\partial z}=\frac{\partial L}{\partial y}\frac{\partial y}{\partial z}\]</div>
+      <p class="small">Then continue one more step backward to the trainable parameters:</p>
+      <div class="grid cards3 small center mono">
+        <div class="card">\(\frac{\partial L}{\partial w_1}=\delta x_1\)</div>
+        <div class="card">\(\frac{\partial L}{\partial w_2}=\delta x_2\)</div>
+        <div class="card">\(\frac{\partial L}{\partial b}=\delta\)</div>
+      </div>
+      <p class="small">So Step 2A computes the derivative pieces, and Step 2B assembles those pieces into the gradients the network needs for learning.</p>
+    </div>
+
+    <div class="grid two">
+      <div class="card space">
+        <div class="h3">Interactive backpropagation calculator</div>
+        <label>\(x_1\) <span id="bp-x1-v" style="float:right">1.0</span><input id="bp-x1" type="range" min="-3" max="3" step="0.1" value="1"></label>
+        <label>\(x_2\) <span id="bp-x2-v" style="float:right">2.0</span><input id="bp-x2" type="range" min="-3" max="3" step="0.1" value="2"></label>
+        <label>\(w_1\) <span id="bp-w1-v" style="float:right">0.2</span><input id="bp-w1" type="range" min="-3" max="3" step="0.1" value="0.2"></label>
+        <label>\(w_2\) <span id="bp-w2-v" style="float:right">−0.1</span><input id="bp-w2" type="range" min="-3" max="3" step="0.1" value="-0.1"></label>
+        <label>b <span id="bp-b-v" style="float:right">0.0</span><input id="bp-b" type="range" min="-2" max="2" step="0.1" value="0"></label>
+        <label>target t <span id="bp-t-v" style="float:right">1.0</span><input id="bp-t" type="range" min="0" max="1" step="1" value="1"></label>
+      </div>
+      <div class="space">
+        <div class="grid cards3"><div class="card">z<br><strong id="bp-z"></strong></div><div class="card">prediction<br><strong id="bp-y"></strong></div><div class="card">loss<br><strong id="bp-L"></strong></div></div>
+        <div class="grid cards3"><div class="card">\(\frac{\partial L}{\partial y}\)<br><strong id="bp-dLdy"></strong></div><div class="card">\(\frac{\partial y}{\partial z}\)<br><strong id="bp-dydz"></strong></div><div class="card">\(\delta=\frac{\partial L}{\partial z}\)<br><strong id="bp-delta"></strong></div></div>
+        <div class="grid cards3"><div class="card">\(\frac{\partial L}{\partial w_1}\)<br><strong id="bp-g1"></strong></div><div class="card">\(\frac{\partial L}{\partial w_2}\)<br><strong id="bp-g2"></strong></div><div class="card">\(\frac{\partial L}{\partial b}\)<br><strong id="bp-gb"></strong></div></div>
+      </div>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">Verification using an approximation</div>
+      <div class="card center math-cell">\(\frac{\partial L}{\partial w_1}\approx\frac{L(w_1+h)-L(w_1)}{h}\)</div>
+      <p class="small">This is a check of backpropagation, not the training algorithm itself.</p>
+    </div>
+    <div class="grid two">
+      <div class="card"><label>verification step h <span id="bp-h-v" style="float:right">0.100</span><input id="bp-h" type="range" min="0.001" max="1" step="0.001" value="0.1"></label></div>
+      <div class="grid cards3"><div class="card">Backprop<br><strong id="bp-exact"></strong></div><div class="card">Finite difference<br><strong id="bp-fd"></strong></div><div class="card">Error<br><strong id="bp-error"></strong></div></div>
+    </div>
+    <button class="btn primary goto" data-next="learn">Use these gradients for learning →</button>
+  </section>
+
+  <section id="panel-learn" class="section hidden space">
+    <div class="card">
+      <div class="small muted">Section 3</div>
+      <div class="h2">Gradient descent uses the gradients from backpropagation</div>
+      <p>Backpropagation tells us how the loss changes when each parameter changes. Gradient descent uses that information to decide how to update the parameters so that the loss becomes smaller.</p>
+      <div class="card center math-cell">\[w_{\mathrm{new}}=w_{\mathrm{old}}-\alpha\frac{\partial L}{\partial w}\]</div>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">What does the update rule mean?</div>
+      <p class="small">Focus on one weight first. Suppose the derivative \(\frac{\partial L}{\partial w}\) is positive. That means increasing <span class="mono">w</span> would increase the loss locally, so we should move <span class="mono">w</span> in the opposite direction.</p>
+      <div class="grid cards2 small">
+        <div class="card">
+          <strong>If \(\frac{\partial L}{\partial w}>0\)</strong>
+          <p>Increasing <span class="mono">w</span> increases the loss, so gradient descent decreases <span class="mono">w</span>.</p>
+        </div>
+        <div class="card">
+          <strong>If \(\frac{\partial L}{\partial w}<0\)</strong>
+          <p>Increasing <span class="mono">w</span> decreases the loss, so gradient descent increases <span class="mono">w</span>.</p>
+        </div>
+      </div>
+      <p class="small">This is why the update uses a minus sign: we move in the direction opposite the gradient.</p>
+    </div>
+
+    <div class="card">
+      <div class="h3">The role of the learning rate \(\alpha\)</div>
+      <p class="small">The number \(\alpha\) controls how large the update is.</p>
+      <div class="grid cards3 small">
+        <div class="card"><strong>Small \(\alpha\)</strong><p>Updates are cautious. Learning may be slow but stable.</p></div>
+        <div class="card"><strong>Moderate \(\alpha\)</strong><p>The network may reduce the loss efficiently.</p></div>
+        <div class="card"><strong>Large \(\alpha\)</strong><p>Updates may jump too far and can make the loss behave erratically.</p></div>
+      </div>
+      <p class="small">In this lesson, you will change \(\alpha\) yourself and observe how the training behavior changes.</p>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">The full training loop</div>
+      <div class="grid five small center">
+        <div class="card">1. Forward pass</div>
+        <div class="card">2. Compute loss</div>
+        <div class="card">3. Backpropagate</div>
+        <div class="card">4. Update parameters</div>
+        <div class="card">5. Repeat</div>
+      </div>
+      <p class="small">A neural network learns by repeating this cycle many times. Each cycle uses the current weights, measures the current error, computes the gradients, and then adjusts the parameters.</p>
+    </div>
+
+    <div class="card">
+      <div class="h3">Before you press the update button</div>
+      <p class="small">For the experiment below, the input is fixed at \(x_1=1,
