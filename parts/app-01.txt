@@ -1,0 +1,150 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Neural Networks and Convolutional Neural Networks Through Multivariable Calculus</title>
+<style>
+:root{
+  --bg:#ffffff; --text:#1f2937; --muted:#6b7280; --border:#d1d5db;
+  --panel:#f8fafc; --accent:#2563eb; --accentbg:#dbeafe; --s2:#7c3aed; --s3:#059669;
+}
+*{box-sizing:border-box} body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--bg);color:var(--text)}
+.wrap{max-width:1100px;margin:0 auto;padding:24px}.space>*+*{margin-top:18px}.grid{display:grid;gap:14px}
+.cards2{grid-template-columns:repeat(2,minmax(0,1fr))}.cards3{grid-template-columns:repeat(3,minmax(0,1fr))}.cards4{grid-template-columns:repeat(4,minmax(0,1fr))}
+.two{grid-template-columns:300px minmax(0,1fr)} .five{grid-template-columns:repeat(5,minmax(0,1fr))}
+.card{border:1px solid var(--border);border-radius:14px;padding:16px;background:#fff}.panel{background:var(--panel)}
+.small{font-size:14px;line-height:1.6}.muted{color:var(--muted)} .mono{font-family:"Cambria Math","STIX Two Math","Times New Roman",serif;font-style:italic}
+.math-cell{font-size:1.08em;letter-spacing:.01em}
+.center{text-align:center}.title{font-size:26px;font-weight:700;margin:0}.h2{font-size:20px;font-weight:700}.h3{font-size:17px;font-weight:700}
+.tabs{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0}.btn{border:1px solid var(--border);border-radius:10px;padding:10px 14px;background:#fff;cursor:pointer;font-weight:600}
+.btn.active,.btn.primary{background:var(--accentbg);border-color:transparent}.hidden{display:none!important}
+label{display:block;font-size:14px} input[type=range]{width:100%}.row{display:flex;justify-content:space-between;gap:12px}
+hr{border:0;border-top:1px solid var(--border)} details summary{cursor:pointer;font-weight:700}
+@keyframes pulse{0%{opacity:.15;transform:translateX(-5px)}45%{opacity:1}100%{opacity:.15;transform:translateX(5px)}}
+.signal{animation:pulse 1.15s ease-in-out infinite alternate}
+.sigwrap{display:grid;grid-template-columns:290px minmax(0,1fr);gap:16px;align-items:start}
+table{border-collapse:collapse;width:100%} th,td{border:1px solid var(--border);padding:8px;text-align:center}
+@media(max-width:800px){.cards2,.cards3,.cards4,.two,.five,.sigwrap{grid-template-columns:1fr}.wrap{padding:14px}}
+</style>
+
+<script>
+window.MathJax = {
+  tex: {
+    inlineMath: [['\\(','\\)']],
+    displayMath: [['\\[','\\]']]
+  },
+  svg: { fontCache: 'global' }
+};
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+
+
+<style>
+.live-math,.math-number,.math-label{font-family:"STIX Two Math","Cambria Math","Times New Roman",serif;font-variant-numeric:lining-nums tabular-nums}.math-label{font-style:italic}svg .math-svg{font-family:"STIX Two Math","Cambria Math","Times New Roman",serif}svg .math-svg-var{font-family:"STIX Two Math","Cambria Math","Times New Roman",serif;font-style:italic}
+</style>
+</head>
+<body>
+<div class="wrap space" id="lesson">
+  <section class="space">
+    <h1 class="title">Neural Networks and Convolutional Neural Networks Through Multivariable Calculus</h1>
+    <p class="small muted">A self-guided introduction to neural networks and convolutional neural networks (CNNs), connecting the chain rule, backpropagation, gradient descent, and image recognition.</p>
+    <div class="grid cards3">
+      <div class="card"><div class="small muted">Prerequisite</div><div><b>Partial derivatives, gradients, chain rule</b></div></div>
+      <div class="card"><div class="small muted">Central question</div><div><b>How does calculus tell neural networks and CNNs how to learn?</b></div></div>
+      <div class="card panel small" style="margin-top:14px"><div class="h3">How to use this app</div><p>Work through the four tabs in order. Read each short explanation, interact with the sliders and diagrams, and pause at the prediction questions and checkpoints before moving on. Try to connect each neural-network idea back to the calculus concepts you already know.</p></div>
+    </div>
+  </section>
+
+  <div class="tabs">
+    <button class="btn tab active" data-tab="neuron">1. One neuron</button>
+    <button class="btn tab" data-tab="backprop">2. Chain rule & backpropagation</button>
+    <button class="btn tab" data-tab="learn">3. Gradient descent</button>
+    <button class="btn tab" data-tab="cnn">4. Images & CNNs</button>
+  </div>
+
+  <!-- SECTION 1 UPDATED -->
+  <section id="panel-neuron" class="section space">
+    <div class="card">
+      <div class="small muted">Section 1 · First encounter with a neural network</div>
+      <div class="h2">What is a neural network actually doing?</div>
+      <p>A neural network can sound mysterious because we often hear about very large models. But its basic building block is simple: <b>take some numbers, combine them, and pass the result through a function.</b></p>
+      <p class="small">A large network may contain millions of parameters, but each small computation uses familiar operations: multiplication, addition, and composition of functions.</p>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">A first mental picture</div>
+      <p class="small">Suppose a neuron receives two measurements, \(x_1\) and \(x_2\). It first forms a weighted sum:</p>
+      <div class="card center math-cell">\[z=w_1x_1+w_2x_2+b\]</div>
+      <p class="small">The weights tell us how strongly the inputs contribute. The bias gives an additional shift.</p>
+    </div>
+
+    <div class="card">
+      <div class="h3">Why is the weighted sum not the whole neuron?</div>
+      <p class="small">If every layer of a neural network only formed weighted sums, then stacking many layers would still produce one overall linear transformation. The network would not gain the nonlinear flexibility needed to model complicated patterns.</p>
+      <p class="small">So after computing \(z\), a neuron applies an <b>activation function</b>.</p>
+      <div class="card center math-cell">\[x_1,x_2 \longrightarrow z=w_1x_1+w_2x_2+b \longrightarrow y=\sigma(z)\]</div>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">Activation functions</div>
+      <p class="small">An activation function transforms the weighted sum before passing the result forward. Different neural networks use different activation functions. In this lesson, we will use the <b>sigmoid</b> because it is smooth and makes the chain rule especially easy to see.</p>
+      <div class="card center math-cell">\[\sigma(z)=\frac{1}{1+e^{-z}}\]</div>
+      <p class="small">The sigmoid maps every real number to a value between 0 and 1. Large positive values of \(z\) give outputs near 1, large negative values give outputs near 0, and \(z=0\) gives exactly 0.5.</p>
+    </div>
+
+    <div class="card">
+      <div class="h3">Explore the sigmoid first</div>
+      <p class="small">Move \(z\) before using the full neuron simulator. Try to predict the output before looking at the graph.</p>
+      <div class="sigwrap">
+        <div class="space">
+          <label>
+            <div class="row"><span>z</span><b id="sig-z-v">0.0</b></div>
+            <input id="sig-z" type="range" min="-6" max="6" step="0.1" value="0">
+          </label>
+          <div class="card">
+            <div class="small muted">Sigmoid output</div>
+            <div id="sig-y" style="font-size:30px;font-weight:700">0.500</div>
+          </div>
+          <table class="small">
+            <tr><th>z</th><th>\(\sigma(z)\)</th></tr>
+            <tr><td>−4</td><td>0.018</td></tr>
+            <tr><td>−2</td><td>0.119</td></tr>
+            <tr><td>0</td><td>0.500</td></tr>
+            <tr><td>2</td><td>0.881</td></tr>
+            <tr><td>4</td><td>0.982</td></tr>
+          </table>
+        </div>
+        <div class="card">
+          <svg id="sig-plot" viewBox="0 0 640 360" style="width:100%" aria-label="Interactive sigmoid graph">
+            <g id="sig-grid"></g>
+            <g id="sig-axes"></g>
+            <path id="sig-curve" fill="none" stroke="var(--accent)" stroke-width="4"></path>
+            <circle id="sig-point" r="9" fill="var(--s3)" stroke="var(--text)" stroke-width="2"></circle>
+          </svg>
+          <div id="sig-note" class="small panel card"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">Prediction before the full neuron</div>
+      <ul class="small">
+        <li>If the weighted sum is \(z=3\), should the output be closer to \(0,\;0.5,\;\text{or}\;1\)?</li>
+        <li>If \(z=-3\), what should happen?</li>
+        <li>If \(z=0\), what is the output?</li>
+      </ul>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">Now watch information flow through the complete neuron</div>
+      <p class="small">At this point, you know what each stage means. The inputs are weighted, added with the bias, and then passed through the sigmoid.</p>
+    </div>
+
+    <div class="grid two">
+      <div class="card space">
+        <div class="h3">Your neural network</div>
+        <div class="card panel small">
+          <div><strong>Fixed input for this experiment</strong></div>
+          <div class="mono" style="margin-top:6px">\(x_1\) = 1, &nbsp; \(x_2\) = 2</div>
+          <div class="muted" style="margin-top:6px">The data stay fixed. You will change only 
