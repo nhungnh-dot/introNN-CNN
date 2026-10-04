@@ -11,8 +11,12 @@
     if(!r.ok) throw new Error(`Could not load ${name}`);
     parts.push(await r.text());
   }
+  let lesson=parts.join('');
+  const oldBlock='<div class="grid cards3">\n      <div class="card"><div class="small muted">Prerequisite</div><div><b>Partial derivatives, gradients, chain rule</b></div></div>\n      <div class="card"><div class="small muted">Central question</div><div><b>How does calculus tell neural networks and CNNs how to learn?</b></div></div>\n      <div class="card panel small" style="margin-top:14px"><div class="h3">How to use this app</div><p>Work through the four tabs in order. Read each short explanation, interact with the sliders and diagrams, and pause at the prediction questions and checkpoints before moving on. Try to connect each neural-network idea back to the calculus concepts you already know.</p></div>\n    </div>';
+  const newBlock='<div class="grid cards2">\n      <div class="card"><div class="small muted">Prerequisite</div><div><b>Partial derivatives, gradients, chain rule</b></div></div>\n      <div class="card"><div class="small muted">Central question</div><div><b>How does calculus tell neural networks and CNNs how to learn?</b></div></div>\n    </div>\n    <div class="small" style="margin-top:14px">\n      <div class="h3">How to use this app</div>\n      <p>Work through the four tabs in order. Read each short explanation, interact with the sliders and diagrams, and pause at the prediction questions and checkpoints before moving on. Try to connect each neural-network idea back to the calculus concepts you already know.</p>\n    </div>';
+  lesson=lesson.replace(oldBlock,newBlock);
   document.open();
-  document.write(parts.join(''));
+  document.write(lesson);
   document.close();
 })().catch(err=>{document.body.innerHTML='<pre style="white-space:pre-wrap;font-family:system-ui;padding:24px">'+err.message+'</pre>';});
 </script>
