@@ -1,0 +1,153 @@
+rong> these filters are examples to build intuition. In a trained CNN, the useful filter weights are learned from data through backpropagation and gradient descent rather than manually chosen.
+      </div>
+
+      <div class="card" style="margin-top:12px">
+        <div class="h3">From simple features to more complex features</div>
+        <div class="grid cards4 small center">
+          <div class="card"><strong>Pixels</strong><br><span class="muted">raw numerical values</span></div>
+          <div class="card"><strong>Edges / strokes</strong><br><span class="muted">responses of early filters</span></div>
+          <div class="card"><strong>Shapes / parts</strong><br><span class="muted">combinations of simpler responses</span></div>
+          <div class="card"><strong>Object evidence</strong><br><span class="muted">higher-level patterns</span></div>
+        </div>
+        <p class="small">This hierarchy is one reason CNNs are useful for image recognition.</p>
+      </div>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">Step 5 · Why might we use max pooling?</div>
+      <p class="small">After convolution, a feature map can still be fairly large. Nearby entries often tell us similar things—for example, several neighboring locations may all respond strongly to the same edge that shifted by only one or two pixels.</p>
+      <p class="small">Max pooling gives us a compact summary. In each small region of the feature map, it keeps only the largest response.</p>
+      <div class="grid cards3 small">
+        <div class="card">
+          <strong>Reduce size</strong>
+          <p>A smaller representation requires fewer numbers to carry forward to later layers.</p>
+        </div>
+        <div class="card">
+          <strong>Keep strong evidence</strong>
+          <p>If a feature appears strongly somewhere in the local neighborhood, the largest response preserves that evidence.</p>
+        </div>
+        <div class="card">
+          <strong>Less sensitive to small shifts</strong>
+          <p>If an edge moves slightly, the strongest response may move to a neighboring cell, but the pooled value can remain similar.</p>
+        </div>
+      </div>
+      <p class="small">For example, in a small \(2\times 2\) region, max pooling keeps only the largest value.</p>
+      <div class="grid cards2 small center">
+        <div class="card">
+          <div class="muted">Feature-map region</div>
+          <div class="mono" style="line-height:1.8">
+            0.2 &nbsp; 0.9<br>
+            0.4 &nbsp; 0.3
+          </div>
+        </div>
+        <div class="card">
+          <div class="muted">Max-pooled value</div>
+          <div class="mono" style="font-size:24px;margin-top:14px">0.9</div>
+        </div>
+      </div>
+      <p class="small">Pooling asks something like: <strong>“Was this feature strongly present somewhere in this small neighborhood?”</strong></p>
+      <p class="small">The tradeoff is that pooling throws away some exact location information. After pooling, we may know that a strong feature occurred somewhere in a small neighborhood without remembering its precise pixel-level position.</p>
+      <p class="small">Notice that max pooling itself does not learn any parameters. It simply applies the maximum operation.</p>
+      <div class="card" style="margin-top:12px">
+        <div class="h3">Picture: pooling keeps a strong feature even if it shifts slightly</div>
+        <svg viewBox="0 0 900 250" style="width:100%" aria-label="Shifted edge and max pooling comparison">
+          <defs>
+            <marker id="poolArrow" markerWidth="9" markerHeight="9" refX="8" refY="4.5" orient="auto">
+              <path d="M0,0 L9,4.5 L0,9 z" fill="var(--muted)"></path>
+            </marker>
+          </defs>
+          <g transform="translate(30,35)">
+            <rect width="150" height="145" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <rect x="58" y="22" width="18" height="100" fill="var(--text)"/>
+            <text x="75" y="168" text-anchor="middle" fill="var(--muted)" font-size="13">feature slightly left</text>
+          </g>
+          <g transform="translate(210,35)">
+            <rect width="150" height="145" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <rect x="76" y="22" width="18" height="100" fill="var(--text)"/>
+            <text x="75" y="168" text-anchor="middle" fill="var(--muted)" font-size="13">feature slightly right</text>
+          </g>
+
+          <line x1="380" y1="108" x2="485" y2="108" stroke="var(--muted)" stroke-width="3" marker-end="url(#poolArrow)"/>
+          <text x="432" y="88" text-anchor="middle" fill="var(--muted)" font-size="13">max pooling</text>
+
+          <g transform="translate(520,30)">
+            <rect width="150" height="150" rx="12" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="75" y="28" text-anchor="middle" fill="var(--text)" font-size="14">local responses</text>
+            <text x="75" y="63" text-anchor="middle" fill="var(--text)" font-size="20">0.2   0.9</text>
+            <text x="75" y="92" text-anchor="middle" fill="var(--text)" font-size="20">0.4   0.3</text>
+            <text x="75" y="128" text-anchor="middle" fill="var(--muted)" font-size="13">max = 0.9</text>
+          </g>
+
+          <line x1="690" y1="108" x2="770" y2="108" stroke="var(--muted)" stroke-width="3" marker-end="url(#poolArrow)"/>
+          <g transform="translate(790,65)">
+            <circle cx="42" cy="42" r="42" fill="var(--panel)" stroke="var(--border)" stroke-width="2"/>
+            <text x="42" y="49" text-anchor="middle" fill="var(--text)" font-size="24">0.9</text>
+          </g>
+          <text x="832" y="180" text-anchor="middle" fill="var(--muted)" font-size="13">strong feature retained</text>
+        </svg>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="h3">Step 6 · What does the CNN actually learn?</div>
+      <p class="small">The CNN does <strong>not</strong> directly learn the words “edge,” “stroke,” or “corner.” What it learns are the numerical entries inside its filters.</p>
+
+      <div class="card center math-cell">
+        \[
+        K=
+        \begin{bmatrix}
+        w_1 & w_2 & w_3\\
+        w_4 & w_5 & w_6\\
+        w_7 & w_8 & w_9
+        \end{bmatrix}
+        \]
+      </div>
+
+      <p class="small">These numbers are trainable parameters, just like the weights \(w_1,w_2\) in the single-neuron example from Section 1.</p>
+
+      <div class="grid cards2 small">
+        <div class="card">
+          <strong>At the beginning</strong>
+          <p>The filter weights are usually initialized to small values, often randomly. At this stage, the filter may not detect anything useful.</p>
+        </div>
+        <div class="card">
+          <strong>After training</strong>
+          <p>The weights have been adjusted so that the filter responds to patterns that help reduce the final loss.</p>
+        </div>
+      </div>
+
+      <p class="small">That means the useful feature is <strong>not chosen by hand</strong>. It emerges because certain filter weights help the network make better predictions.</p>
+
+      <div class="card panel small">
+        <strong>Important idea:</strong> random initialization is only the starting point. The learned filter after training is shaped by the training images, the targets, the loss function, and repeated gradient updates.
+      </div>
+
+      <div class="card center math-cell">\[\text{image patch}+\text{filter}\longrightarrow\text{filter response}\longrightarrow\text{feature map}\longrightarrow\text{later CNN layers}\longrightarrow\text{prediction}\longrightarrow\text{loss}\]</div>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">Step 7 · How does backpropagation train a filter?</div>
+      <p class="small">Suppose the CNN makes a prediction and the prediction is wrong. The loss tells us how bad the prediction is, but we still need to know <strong>which filter weights should change and in which direction</strong>.</p>
+
+      <div class="card center math-cell">\[\text{filter weight}\longrightarrow\text{filter response}\longrightarrow\text{feature map}\longrightarrow\text{later layers}\longrightarrow\text{prediction}\longrightarrow\text{loss}\]</div>
+
+      <p class="small">A single filter weight can affect the loss through many intermediate computations. Backpropagation follows that chain in reverse and uses the chain rule to compute a derivative such as</p>
+
+      <div class="card center math-cell">\[\frac{\partial L}{\partial w_i}\]</div>
+
+      <p class="small">This derivative answers:</p>
+      <div class="card center"><strong>If I change this filter weight slightly, how will the final loss change?</strong></div>
+
+      <div class="grid cards3 small">
+        <div class="card">
+          <strong>1. Forward pass</strong>
+          <p>Use the current filter weights to compute feature maps, prediction, and loss.</p>
+        </div>
+        <div class="card">
+          <strong>2. Backward pass</strong>
+          <p>Use the chain rule to compute <span class="mono">\[\frac{\partial L}{\partial w_i}\]</span> for each filter weight.</p>
+        </div>
+        <div class="card">
+          <strong>3. Update</strong>
+          <p>Gradient descent changes the filter weight:</p>
+          <div>\(w_{i,\mathrm
