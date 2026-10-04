@@ -1,0 +1,123 @@
+the trainable parameters.</div>
+        </div>
+        <label><div class="row"><span>weight \(w_1\)</span><b id="sim-w1-v">0.8</b></div><input id="sim-w1" type="range" min="-3" max="3" step="0.1" value="0.8"></label>
+        <label><div class="row"><span>weight \(w_2\)</span><b id="sim-w2-v">−0.4</b></div><input id="sim-w2" type="range" min="-3" max="3" step="0.1" value="-0.4"></label>
+        <label><div class="row"><span>bias b</span><b id="sim-b-v">0.0</b></div><input id="sim-b" type="range" min="-2" max="2" step="0.1" value="0"></label>
+        <button id="sim-random" class="btn">Try random weights and bias</button>
+        <button id="sim-reset" class="btn">Reset parameters</button>
+      </div>
+
+      <div class="space">
+        <div class="card">
+          <div class="h3">Watch the information flow</div>
+          <svg viewBox="0 0 820 320" style="width:100%" aria-label="Two inputs through weighted sum to sigmoid output">
+            <line x1="130" y1="75" x2="330" y2="135" stroke="var(--border)" stroke-width="5"/>
+            <line x1="130" y1="245" x2="330" y2="175" stroke="var(--border)" stroke-width="5"/>
+            <line x1="440" y1="155" x2="650" y2="155" stroke="var(--border)" stroke-width="5"/>
+            <circle class="signal" cx="230" cy="105" r="9" fill="var(--s2)"/>
+            <circle class="signal" cx="230" cy="210" r="9" fill="var(--s3)"/>
+            <circle class="signal" cx="545" cy="155" r="9" fill="var(--accent)"/>
+
+            <circle cx="90" cy="70" r="48" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <circle cx="90" cy="250" r="48" fill="var(--panel)" stroke="var(--border)" stroke-width="3"/>
+            <circle cx="385" cy="155" r="58" fill="var(--panel)" stroke="var(--accent)" stroke-width="4"/>
+            <circle cx="705" cy="155" r="68" fill="var(--panel)" stroke="var(--s2)" stroke-width="4"/>
+
+            <text x="90" y="66" text-anchor="middle" fill="var(--text)" font-size="22" font-family="Times New Roman, serif" font-style="italic">x<tspan baseline-shift="sub" font-size="10">1</tspan></text>
+            <text id="svg-x1" x="90" y="92" text-anchor="middle" fill="var(--text)" font-size="16"></text>
+            <text x="90" y="246" text-anchor="middle" fill="var(--text)" font-size="22" font-family="Times New Roman, serif" font-style="italic">x<tspan baseline-shift="sub" font-size="10">2</tspan></text>
+            <text id="svg-x2" x="90" y="272" text-anchor="middle" fill="var(--text)" font-size="16"></text>
+
+            <text x="385" y="143" text-anchor="middle" fill="var(--text)" font-size="17">weighted sum</text>
+            <text id="svg-z" x="385" y="170" text-anchor="middle" fill="var(--text)" font-size="15"></text>
+
+            <text x="705" y="138" text-anchor="middle" fill="var(--text)" font-size="18">output</text>
+            <text x="705" y="163" text-anchor="middle" fill="var(--text)" font-size="16" font-family="Times New Roman, serif" font-style="italic">y = σ(z)</text>
+            <text id="svg-y" x="705" y="188" text-anchor="middle" fill="var(--text)" font-size="16"></text>
+
+            <text id="svg-w1" x="225" y="72" text-anchor="middle" fill="var(--muted)" font-size="15"></text>
+            <text id="svg-w2" x="225" y="249" text-anchor="middle" fill="var(--muted)" font-size="15"></text>
+          </svg>
+        </div>
+
+        <div class="grid cards4">
+          <div class="card"><div class="small muted">Contribution from \(x_1\)</div><div id="sim-c1" class="h2"></div><div class="small mono">\(w_1\)\(x_1\)</div></div>
+          <div class="card"><div class="small muted">Contribution from \(x_2\)</div><div id="sim-c2" class="h2"></div><div class="small mono">\(w_2\)\(x_2\)</div></div>
+          <div class="card"><div class="small muted">Before activation</div><div id="sim-z" class="h2"></div><div class="small mono">z</div></div>
+          <div class="card"><div class="small muted">After activation</div><div id="sim-y" class="h2"></div><div class="small mono">\(\sigma(z)\)</div></div>
+        </div>
+        <div id="sim-explain" class="card panel small"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="h3">Explore deliberately</div>
+      <ol class="small">
+        <li>Set <span class="mono">\(w_1=0\)</span>. Which input contribution disappears?</li>
+        <li>Make \(w_1\) negative. Compare the sign of <span class="mono">\(w_1\)\(x_1\)</span> before and after.</li>
+        <li>Set both weights to zero. What determines the output now?</li>
+        <li>Keep the weights fixed and change only the bias. What happens to \(z\)?</li>
+        <li>Try to make the sigmoid output close to 1, then close to 0, using only \(w_1,w_2,b\).</li>
+      </ol>
+    </div>
+
+    <div class="card">
+      <div class="h3">From one neuron to a neural network</div>
+      <p class="small">A real network connects many neurons. The outputs of one layer become the inputs of the next. Each neuron performs the same basic pattern: weighted sum, activation, output.</p>
+      <svg viewBox="0 0 780 300" style="width:100%;min-width:650px" aria-label="Simple network">
+        <g stroke="var(--border)" stroke-width="2">
+          <line x1="130" y1="80" x2="360" y2="65"/><line x1="130" y1="80" x2="360" y2="150"/><line x1="130" y1="80" x2="360" y2="235"/>
+          <line x1="130" y1="220" x2="360" y2="65"/><line x1="130" y1="220" x2="360" y2="150"/><line x1="130" y1="220" x2="360" y2="235"/>
+          <line x1="420" y1="65" x2="650" y2="150"/><line x1="420" y1="150" x2="650" y2="150"/><line x1="420" y1="235" x2="650" y2="150"/>
+        </g>
+        <g fill="var(--panel)" stroke="var(--border)" stroke-width="3">
+          <circle cx="100" cy="80" r="30"/><circle cx="100" cy="220" r="30"/>
+          <circle cx="390" cy="65" r="30"/><circle cx="390" cy="150" r="30"/><circle cx="390" cy="235" r="30"/>
+          <circle cx="680" cy="150" r="34"/>
+        </g>
+        <g fill="var(--text)" font-size="17" text-anchor="middle">
+          <text x="100" y="85" font-family="Times New Roman, serif" font-style="italic">x<tspan baseline-shift="sub" font-size="11">1</tspan></text><text x="100" y="225" font-family="Times New Roman, serif" font-style="italic">x<tspan baseline-shift="sub" font-size="11">2</tspan></text>
+          <text x="390" y="70" font-family="Times New Roman, serif" font-style="italic">h<tspan baseline-shift="sub" font-size="11">1</tspan></text><text x="390" y="155" font-family="Times New Roman, serif" font-style="italic">h<tspan baseline-shift="sub" font-size="11">2</tspan></text><text x="390" y="240" font-family="Times New Roman, serif" font-style="italic">h<tspan baseline-shift="sub" font-size="11">3</tspan></text><text x="680" y="155" font-family="Times New Roman, serif" font-style="italic">y</text>
+          <text x="100" y="285">input layer</text><text x="390" y="285">hidden layer</text><text x="680" y="285">output</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="card">
+      <div class="h3">The question that leads to backpropagation</div>
+      <p class="small">Suppose the network gives the wrong answer. Which weight should change? Should it increase or decrease? By how much?</p>
+      <p class="small">To answer that systematically, we need to know how the final error depends on each parameter. That is exactly where the chain rule enters.</p>
+    </div>
+
+    <details class="card">
+      <summary>Section 1 checkpoint</summary>
+      <div class="small">
+        <p>1. What is the role of a weight?</p>
+        <p>2. What is the role of the bias?</p>
+        <p>3. Why do we use an activation function?</p>
+        <p>4. What does the sigmoid do to a large positive or negative input?</p>
+        <p>5. Why can a neural network be viewed as a composition of functions?</p>
+      </div>
+    </details>
+
+    <button class="btn primary goto" data-next="backprop">Continue to chain rule & backpropagation →</button>
+  </section>
+
+  <!-- SECTIONS 2–4 KEPT SAME -->
+  <section id="panel-backprop" class="section hidden space">
+    <div class="card">
+      <div class="small muted">Section 2</div>
+      <div class="h2">Before backpropagation: how do we measure error?</div>
+      <p>In Section 1, the neuron produced an output \(y\). But during training, the network also needs to know whether that output is good or bad.</p>
+      <p class="small">For each training example, we compare the prediction \(y\) with the desired value \(t\). We summarize that mismatch using a <strong>loss function</strong>.</p>
+    </div>
+
+    <div class="card panel">
+      <div class="h3">A simple loss function</div>
+      <p class="small">For this lesson, we will use squared error:</p>
+      <div class="card center math-cell">\(L=(y-t)^2\)</div>
+      <p class="small">The loss is always nonnegative. It is zero only when the prediction exactly matches the target.</p>
+      <div class="grid cards3 small">
+        <div class="card center"><div class="muted">Prediction</div><div>\(y=0.9\)</div><div>\(t=1\)</div><div style="margin-top:6px"><strong>\(L=0.01\)</strong></div></div>
+        <div class="card center"><div class="muted">Prediction</div><div>\(y=0.5\)</div><div>\(t=1\)</div><div style="margin-top:6px"><strong>\(L=0.25\)</strong></div></div>
+        <div class="card center"><div class="muted">Prediction</div><div>\(y=0.1\)</div><div>\(t=1\)
